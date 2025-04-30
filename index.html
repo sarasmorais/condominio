@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sistema de Gestão de Aluguéis</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="logo">
+                <i class="fas fa-building"></i>
+            </div>
+            <h1>Sistema de Gestão de Aluguéis</h1>
+            <p>Faça login para acessar sua conta</p>
+        </div>
+        
+        <form class="login-form" id="loginForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Senha</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <button type="submit">Entrar</button>
+            
+            <div class="error-message" id="errorMessage">
+                Email ou senha incorretos. Tente novamente.
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Inicialização do Supabase (substitua com suas credenciais reais)
+        const SUPABASE_URL = 'https://sqmjecuweeqbgbcqoyrt.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNxbWplY3V3ZWVxYmdiY3FveXJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU5Njk1ODEsImV4cCI6MjA2MTU0NTU4MX0.Gol0hUqYqjLIhuwpdHHSQvtDdXWIz2zEThf7V7qvK9I';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+            
+            try {
+                // Consultar o usuário na tabela "gestao-alugueis"
+                const { data, error } = await supabase
+                    .from('gestao-alugueis') // sem aspas
+                    .select('*')
+                    .eq('email', email)
+                    .eq('password', password)
+                    .single();
+
+                console.log({ data, error });
+                if (error || !data) {
+                    // Login falhou
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+                
+                // Login bem-sucedido
+                sessionStorage.setItem('currentUser', JSON.stringify(data));
+                window.location.href = 'dashboard.html';
+    
+            } catch (err) {
+                console.error('Erro ao fazer login:', err);
+                errorMessage.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
